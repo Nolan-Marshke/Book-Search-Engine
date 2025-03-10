@@ -6,15 +6,47 @@ import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 
 const SavedBooks = () => {
-  // Use the useQuery hook to fetch the current user's data
+  
   const { loading, data } = useQuery(GET_ME);
-  const userData = data?.me || {
+  
+ 
+  const [removeBook, { error }] = useMutation(REMOVE_BOOK, {
+    
+    update(cache, { data: { removeBook } }) {
+      try {
+        cache.writeQuery({
+          query: GET_ME,
+          data: { me: removeBook },
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    },
+  });
 
-  // If data isn't here yet, display loading message
+  const handleDeleteBook = async (bookId: string) => {
+    const token = Auth.loggedIn() ? Auth.getToken() : null;
+
+    if (!token) {
+      return false;
+    }
+
+    try {
+      const { data } = await removeBook({
+        variables: { bookId },
+      });
+
+      removeBookId(bookId);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const userData = data?.me || {};
+
   if (loading) {
     return <h2>LOADING...</h2>;
   }
-
   return (
     <>
       <div className='text-light bg-dark p-5'>
@@ -68,38 +100,3 @@ const SavedBooks = () => {
 };
 
 export default SavedBooks;
-
-  // Use the REMOVE_BOOK mutation
-  const [removeBook, { error }] = useMutation(REMOVE_BOOK, {
-    // Update the cache after removing a book
-    update(cache, { data: { removeBook } }) {
-      try {
-        cache.writeQuery({
-          query: GET_ME,
-          data: { me: removeBook },
-        });
-      } catch (e) {
-        console.error(e);
-      }
-    },
-  });
-
-  // Create function that accepts the book's mongo _id value as param and deletes the book from the database
-  const handleDeleteBook = async (bookId: string) => {
-    const token = Auth.loggedIn() ? Auth.getToken() : null;
-
-    if (!token) {
-      return false;
-    }
-
-    try {
-      const { data } = await removeBook({
-        variables: { bookId },
-      });
-
-      // Upon success, remove book's id from localStorage
-      removeBookId(bookId);
-    } catch (err) {
-      console.error(err);
-    }
-  };
