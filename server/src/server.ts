@@ -15,30 +15,27 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  context: authMiddleware,
-});
-
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 
+// if we're in production, serve client/dist as static assets
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../../client/dist')));
 }
 
-
-app.get('*', (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
 });
 
 const startApolloServer = async () => {
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: authMiddleware,
+  });
+
   await server.start();
-  
- 
   server.applyMiddleware({ app });
 
   db.once('open', () => {
@@ -49,5 +46,5 @@ const startApolloServer = async () => {
   });
 };
 
-
+// Start the server
 startApolloServer();
