@@ -15,17 +15,16 @@ const PORT = process.env.PORT || 3001;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// if we're in production, serve client/dist as static assets
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../client/dist')));
+  app.use(express.static(path.join(__dirname, '../../../dist')));
   
-  // Handle any routes not handled by the server by serving the index.html
   app.get('*', (_, res) => {
-    res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
+    res.sendFile(path.join(__dirname, '../../../dist/index.html'));
   });
 } else {
-  // In development, serve the index.html for the root route
-  app.get('/', (_, res) => {
+  app.use(express.static(path.join(__dirname, '../../client/dist')));
+  
+  app.get('*', (_, res) => {
     res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
   });
 }
