@@ -1,93 +1,95 @@
-# Book-Search-Engine
+# Book Search Engine
 
-
-Book Search Engine
-Description
+## Description
 This application is a book search engine that allows users to search for books via the Google Books API. Users can create an account, search for books, and save books to their account for later reference. The application was built using the MERN stack (MongoDB, Express.js, React, Node.js) with a GraphQL API built using Apollo Server.
-Table of Contents
 
-Features
-Installation
-Usage
-Technologies Used
-Deployment
-License
+## Table of Contents
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Technologies Used](#technologies-used)
+- [Deployment](#deployment)
+- [License](#license)
 
-Features
+## Features
+- Search for books by title, author, or keywords
+- View detailed information about books including cover image, author, description, and a link to Google Books
+- Create a user account
+- Save books to your personal collection
+- View all saved books in one place
+- Remove books from your saved collection
+- Responsive design that works on various screen sizes
 
-Search for books by title, author, or keywords
-View detailed information about books including cover image, author, description, and a link to Google Books
-Create a user account
-Save books to your personal collection
-View all saved books in one place
-Remove books from your saved collection
-Responsive design that works on various screen sizes
-
-Installation
+## Installation
 To install and run this application locally, follow these steps:
 
-Clone the repository to your local machine
-Copygit clone <repository-url>
+1. Clone the repository to your local machine:
+    ```sh
+    git clone <repository-url>
+    ```
 
-Navigate to the project directory
-Copycd book-search-engine
+2. Navigate to the project directory:
+    ```sh
+    cd book-search-engine
+    ```
 
-Install dependencies for both server and client
-Copynpm install
+3. Install dependencies for both server and client:
+    ```sh
+    npm install
+    ```
 
-Create a .env file in the server directory with your MongoDB URI and JWT secret
-CopyMONGODB_URI='your-mongodb-uri'
-JWT_SECRET_KEY='your-secret-key'
+4. Create a `.env` file in the server directory with your MongoDB URI and JWT secret:
+    ```sh
+    MONGODB_URI='your-mongodb-uri'
+    JWT_SECRET_KEY='your-secret-key'
+    ```
 
-Build the application
-Copynpm run build
+5. Build the application:
+    ```sh
+    npm run build
+    ```
 
-Start the development server
-Copynpm run develop
+6. Start the development server:
+    ```sh
+    npm run develop
+    ```
 
+## Usage
 
-Usage
+### Search for Books
+- Use the search bar to find books by title, author, or keywords.
+- Browse through the search results to find books of interest.
 
-Search for Books:
+### Create an Account
+- Click on "Login/Sign Up" to create a new account or log in.
+- Fill in the required information to create an account.
 
-Use the search bar to find books by title, author, or keywords.
-Browse through the search results to find books of interest.
+### Save Books
+- Once logged in, you can save books by clicking the "Save This Book!" button.
+- Saved books will be stored in your account.
 
+### View Saved Books
+- Click on "See Your Books" to view all your saved books.
+- You can remove books from your saved collection by clicking the "Delete This Book!" button.
 
-Create an Account:
+## Technologies Used
 
-Click on "Login/Sign Up" to create a new account or log in.
-Fill in the required information to create an account.
+### Frontend
+- React
+- Apollo Client
+- React Bootstrap
+- JWT for authentication
 
+### Backend
+- Node.js
+- Express.js
+- Apollo Server
+- GraphQL
+- MongoDB with Mongoose ODM
+- JWT for authentication
 
-Save Books:
+## Deployment
+Instructions for deployment will be added here.
 
-Once logged in, you can save books by clicking the "Save This Book!" button.
-Saved books will be stored in your account.
-
-
-View Saved Books:
-
-Click on "See Your Books" to view all your saved books.
-You can remove books from your saved collection by clicking the "Delete This Book!" button.
-
-
-
-Technologies Used
-
-Frontend:
-
-React
-Apollo Client
-React Bootstrap
-JWT for authentication
-
-
-Backend:
-
-Node.js
-Express.js
-Apollo Server
-GraphQL
-MongoDB with Mongoose ODM
-JWT for authentication
+## License
+This project is licensed under the MIT License.
