@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Container, Card, Button, Row, Col } from 'react-bootstrap';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_ME } from '../utils/queries';
@@ -6,14 +7,14 @@ import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 
 const SavedBooks = () => {
-  
+  // Use the useQuery hook to make the GET_ME query
   const { loading, data } = useQuery(GET_ME);
   
- 
+  // Use the useMutation hook to execute the REMOVE_BOOK mutation
   const [removeBook, { error }] = useMutation(REMOVE_BOOK, {
-    
     update(cache, { data: { removeBook } }) {
       try {
+        // Update the cache with the returned user data
         cache.writeQuery({
           query: GET_ME,
           data: { me: removeBook },
@@ -24,6 +25,7 @@ const SavedBooks = () => {
     },
   });
 
+  // Function to handle deleting a book from savedBooks
   const handleDeleteBook = async (bookId: string) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
@@ -32,21 +34,26 @@ const SavedBooks = () => {
     }
 
     try {
+      // Execute the removeBook mutation
       const { data } = await removeBook({
         variables: { bookId },
       });
 
+      // Upon success, remove book's id from localStorage
       removeBookId(bookId);
     } catch (err) {
       console.error(err);
     }
   };
 
+  // Get user data from the query result
   const userData = data?.me || {};
 
+  // If data is still loading, display a loading message
   if (loading) {
     return <h2>LOADING...</h2>;
   }
+
   return (
     <>
       <div className='text-light bg-dark p-5'>
