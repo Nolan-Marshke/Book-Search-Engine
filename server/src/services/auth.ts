@@ -17,7 +17,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
   if (authHeader) {
     const token = authHeader.split(' ')[1];
 
-    const secretKey = process.env.JWT_SECRET_KEY || '';
+    const secretKey = process.env.JWT_SECRET_KEY || 'mysecretsshhhhh';
 
     jwt.verify(token, secretKey, (err, user) => {
       if (err) {
@@ -33,7 +33,6 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 };
 
 export const authMiddleware = ({ req }: { req: Request }) => {
-  
   let token = req.body?.token || req.query?.token || req.headers.authorization;
 
   
@@ -46,8 +45,8 @@ export const authMiddleware = ({ req }: { req: Request }) => {
   }
 
   try {
-    const secretKey = process.env.JWT_SECRET_KEY || '';
-    const { data } = jwt.verify(token, secretKey, { maxAge: '1h' }) as { data: JwtPayload };
+    const secretKey = process.env.JWT_SECRET_KEY || 'mysecretsshhhhh';
+    const { data } = jwt.verify(token, secretKey, { maxAge: '2h' }) as { data: JwtPayload };
     
     return { user: data };
   } catch {
@@ -58,7 +57,7 @@ export const authMiddleware = ({ req }: { req: Request }) => {
 
 export const signToken = (username: string, email: string, _id: unknown) => {
   const payload = { username, email, _id };
-  const secretKey = process.env.JWT_SECRET_KEY || '';
+  const secretKey = process.env.JWT_SECRET_KEY || 'mysecretsshhhhh';
 
-  return jwt.sign(payload, secretKey, { expiresIn: '1h' });
+  return jwt.sign({ data: payload }, secretKey, { expiresIn: '2h' });
 };
