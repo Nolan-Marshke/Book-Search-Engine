@@ -1,7 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-
 import dotenv from 'dotenv';
+
+
 dotenv.config();
 
 interface JwtPayload {
@@ -20,14 +21,38 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
     jwt.verify(token, secretKey, (err, user) => {
       if (err) {
-        return res.sendStatus(403); // Forbidden
+        return res.sendStatus(403); 
       }
 
       req.user = user as JwtPayload;
       return next();
     });
   } else {
-    res.sendStatus(401); // Unauthorized
+    res.sendStatus(401); 
+  }
+};
+
+export const authMiddleware = ({ req }: { req: Request }) => {
+  
+  let token = req.body?.token || req.query?.token || req.headers.authorization;
+
+  
+  if (req.headers.authorization) {
+    token = token.split(' ').pop().trim();
+  }
+
+  if (!token) {
+    return {};
+  }
+
+  try {
+    const secretKey = process.env.JWT_SECRET_KEY || '';
+    const { data } = jwt.verify(token, secretKey, { maxAge: '1h' }) as { data: JwtPayload };
+    
+    return { user: data };
+  } catch {
+    console.log('Invalid token');
+    return {};
   }
 };
 
