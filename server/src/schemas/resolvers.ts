@@ -1,8 +1,6 @@
 import User from "../models/User.js";  
 import { AuthenticationError } from 'apollo-server-express';
 import { signToken } from '../services/auth.js';
-import type { BookDocument } from "../models/Book.js";
-
 interface BookInput {
   bookId: string;
   authors: string[];
