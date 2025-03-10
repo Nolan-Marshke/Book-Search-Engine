@@ -1,75 +1,67 @@
-import type { Request, Response } from 'express';
-// import user model
 import User from '../models/User.js';
-// import sign token function from auth
 import { signToken } from '../services/auth.js';
 
-// get a single user by either their id or their username
-export const getSingleUser = async (req: Request, res: Response) => {
-  const foundUser = await User.findOne({
-    $or: [{ _id: req.user ? req.user._id : req.params.id }, { username: req.params.username }],
-  });
-
-  if (!foundUser) {
-    return res.status(400).json({ message: 'Cannot find a user with this id!' });
-  }
-
-  return res.json(foundUser);
+// Get all users
+export const getAllUsers = async () => {
+  return await User.find();
 };
 
-// create a user, sign a token, and send it back (to client/src/components/SignUpForm.js)
-export const createUser = async (req: Request, res: Response) => {
-  const user = await User.create(req.body);
-
-  if (!user) {
-    return res.status(400).json({ message: 'Something is wrong!' });
-  }
-  const token = signToken(user.username, user.password, user._id);
-  return res.json({ token, user });
+// Get a single user by ID
+export const getSingleUser = async (userId: string) => {
+  return await User.findById(userId);
 };
 
-// login a user, sign a token, and send it back (to client/src/components/LoginForm.js)
-// {body} is destructured req.body
-export const login = async (req: Request, res: Response) => {
-  const user = await User.findOne({ $or: [{ username: req.body.username }, { email: req.body.email }] });
+// Create a new user
+export const createUser = async (userData: any) => {
+  const user = await User.create(userData);
+  const token = signToken(user.username, user.email, user._id);
+  return { token, user };
+};
+
+// Login a user
+export const login = async (userData: { email: string; password: string }) => {
+  const user = await User.findOne({ email: userData.email });
+  
   if (!user) {
-    return res.status(400).json({ message: "Can't find this user" });
+    throw new Error("Can't find this user");
   }
-
-  const correctPw = await user.isCorrectPassword(req.body.password);
-
+  
+  const correctPw = await user.isCorrectPassword(userData.password);
+  
   if (!correctPw) {
-    return res.status(400).json({ message: 'Wrong password!' });
+    throw new Error('Wrong password!');
   }
-  const token = signToken(user.username, user.password, user._id);
-  return res.json({ token, user });
+  
+  const token = signToken(user.username, user.email, user._id);
+  return { token, user };
 };
 
-// save a book to a user's `savedBooks` field by adding it to the set (to prevent duplicates)
-// user comes from `req.user` created in the auth middleware function
-export const saveBook = async (req: Request, res: Response) => {
-  try {
-    const updatedUser = await User.findOneAndUpdate(
-      { _id: req.user._id },
-      { $addToSet: { savedBooks: req.body } },
-      { new: true, runValidators: true }
-    );
-    return res.json(updatedUser);
-  } catch (err) {
-    console.log(err);
-    return res.status(400).json(err);
+// Save a book to a user's savedBooks
+export const saveBook = async (userId: string, bookData: any) => {
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $addToSet: { savedBooks: bookData } },
+    { new: true, runValidators: true }
+  );
+  
+  if (!updatedUser) {
+    throw new Error("Couldn't find user with this id!");
   }
+  
+  return updatedUser;
 };
 
-// remove a book from `savedBooks`
-export const deleteBook = async (req: Request, res: Response) => {
-  const updatedUser = await User.findOneAndUpdate(
-    { _id: req.user._id },
-    { $pull: { savedBooks: { bookId: req.params.bookId } } },
+// Remove a book from a user's savedBooks
+export const deleteBook = async (userId: string, bookId: string) => {
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $pull: { savedBooks: { bookId } } },
     { new: true }
   );
+  
   if (!updatedUser) {
-    return res.status(404).json({ message: "Couldn't find user with this id!" });
+    throw new Error("Couldn't find user with this id!");
   }
-  return res.json(updatedUser);
+  
+  return updatedUser;
 };
