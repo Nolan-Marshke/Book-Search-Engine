@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: book-search-engine
+    env: node
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
