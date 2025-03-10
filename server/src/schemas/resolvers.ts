@@ -1,80 +1,108 @@
-import User from "../models/User.js";  
-import { AuthenticationError } from 'apollo-server-express';
-import { signToken } from '../services/auth.js';
-interface BookInput {
+// server/src/schemas/resolvers.ts
+interface User {
+  _id: string;
+  username: string;
+  email: string;
+  bookCount: number;
+  savedBooks: Book[];
+}
+
+interface Book {
   bookId: string;
   authors: string[];
   description: string;
   title: string;
-  image?: string;
-  link?: string;
+  image: string;
+  link: string;
 }
 
-interface Context {
-  user?: {
-    _id: unknown;
-    username: string;
-    email: string;
-  };
+interface BookData {
+  bookId: string;
+  authors: string[];
+  description: string;
+  title: string;
+  image: string;
+  link: string;
 }
 
-const resolvers = {
+export const resolvers = {
   Query: {
-    me: async (_parent: any, _args: any, context: Context) => {
-      if (context.user) {
-        return User.findOne({ _id: context.user._id });
-      }
-      throw new AuthenticationError('You need to be logged in!');
-    },
+    me: () => {
+      return {
+        _id: 'mock-user-id',
+        username: 'testuser',
+        email: 'test@example.com',
+        bookCount: 5,
+        savedBooks: [
+          {
+            bookId: 'test-book-1',
+            authors: ['Test Author 1'],
+            description: 'This is a test book description',
+            title: 'Test Book 1',
+            image: 'https://via.placeholder.com/150',
+            link: 'https://example.com/book1'
+          },
+          {
+            bookId: 'test-book-2',
+            authors: ['Test Author 2'],
+            description: 'Another test book description',
+            title: 'Test Book 2',
+            image: 'https://via.placeholder.com/150',
+            link: 'https://example.com/book2'
+          }
+        ]
+      };
+    }
   },
-
   Mutation: {
-    login: async (_parent: any, { email, password }: { email: string; password: string }) => {
-      const user = await User.findOne({ email });
-
-      if (!user) {
-        throw new AuthenticationError('No user found with this email address');
-      }
-
-      const correctPw = await user.isCorrectPassword(password);
-
-      if (!correctPw) {
-        throw new AuthenticationError('Incorrect credentials');
-      }
-
-      const token = signToken(user.username, user.email, user._id);
-
-      return { token, user };
+    login: (_: unknown, { email, password }: { email: string; password: string }) => {
+      return {
+        token: 'mock-jwt-token',
+        user: {
+          _id: 'mock-user-id',
+          username: 'testuser',
+          email: email
+        }
+      };
     },
-
-    addUser: async (_parent: any, { username, email, password }: { username: string; email: string; password: string }) => {
-      const user = await User.create({ username, email, password });
-      const token = signToken(user.username, user.email, user._id);
-      return { token, user };
+    addUser: (_: unknown, { username, email, password }: { username: string; email: string; password: string }) => {
+      return {
+        token: 'mock-jwt-token',
+        user: {
+          _id: 'mock-user-id',
+          username: username,
+          email: email
+        }
+      };
     },
-
-    saveBook: async (_parent: any, { input }: { input: BookInput }, context: Context) => {
-      if (context.user) {
-        return User.findOneAndUpdate(
-          { _id: context.user._id },
-          { $addToSet: { savedBooks: input } },
-          { new: true, runValidators: true }
-        );
-      }
-      throw new AuthenticationError('You need to be logged in!');
+    saveBook: (_: unknown, { bookData }: { bookData: BookData }) => {
+      return {
+        _id: 'mock-user-id',
+        username: 'testuser',
+        email: 'test@example.com',
+        bookCount: 6,
+        savedBooks: [
+          {
+            bookId: bookData.bookId,
+            authors: bookData.authors,
+            description: bookData.description,
+            title: bookData.title,
+            image: bookData.image,
+            link: bookData.link
+          }
+        ]
+      };
     },
-
-    removeBook: async (_parent: any, { bookId }: { bookId: string }, context: Context) => {
-      if (context.user) {
-        return User.findOneAndUpdate(
-          { _id: context.user._id },
-          { $pull: { savedBooks: { bookId } } },
-          { new: true }
-        );
-      }
-      throw new AuthenticationError('You need to be logged in!');
-    },
-  },
+    removeBook: (_: unknown, { bookId }: { bookId: string }) => {
+      return {
+        _id: 'mock-user-id',
+        username: 'testuser',
+        email: 'test@example.com',
+        bookCount: 4,
+        savedBooks: []
+      };
+    }
+  }
 };
 
 export default resolvers;
