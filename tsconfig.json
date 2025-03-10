@@ -16,7 +16,7 @@
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "noImplicitAny": false  // To avoid 'Parameter implicitly has an 'any' type' errors for quick fixes
+    "noImplicitAny": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
