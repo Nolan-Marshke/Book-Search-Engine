@@ -71,7 +71,7 @@ const startApolloServer = async () => {
       console.log('✅ MongoDB connection established successfully');
     });
 
-    db.on('error', (err) => {
+    db.on('error', (err: Error) => {
       console.error('❌ MongoDB connection error:', err);
       console.log('⚠️ Application running in limited functionality mode');
       // Don't exit process on MongoDB error - allow the server to continue running
