@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { Container, Card, Button, Row, Col } from 'react-bootstrap';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_ME } from '../utils/queries';
@@ -11,7 +10,7 @@ const SavedBooks = () => {
   const { loading, data } = useQuery(GET_ME);
   
   // Use the useMutation hook to execute the REMOVE_BOOK mutation
-  const [removeBook, { error }] = useMutation(REMOVE_BOOK, {
+  const [removeBook] = useMutation(REMOVE_BOOK, {
     update(cache, { data: { removeBook } }) {
       try {
         // Update the cache with the returned user data
@@ -19,10 +18,10 @@ const SavedBooks = () => {
           query: GET_ME,
           data: { me: removeBook },
         });
-      } catch (e) {
+      } catch (e: any) {
         console.error(e);
       }
-    },
+    }
   });
 
   // Function to handle deleting a book from savedBooks
@@ -35,7 +34,7 @@ const SavedBooks = () => {
 
     try {
       // Execute the removeBook mutation
-      const { data } = await removeBook({
+      await removeBook({
         variables: { bookId },
       });
 
@@ -74,32 +73,30 @@ const SavedBooks = () => {
             : 'You have no saved books!'}
         </h2>
         <Row>
-          {userData.savedBooks?.map((book) => {
-            return (
-              <Col md='4' key={book.bookId}>
-                <Card border='dark'>
-                  {book.image ? (
-                    <Card.Img
-                      src={book.image}
-                      alt={`The cover for ${book.title}`}
-                      variant='top'
-                    />
-                  ) : null}
-                  <Card.Body>
-                    <Card.Title>{book.title}</Card.Title>
-                    <p className='small'>Authors: {book.authors.join(', ')}</p>
-                    <Card.Text>{book.description}</Card.Text>
-                    <Button
-                      className='btn-block btn-danger'
-                      onClick={() => handleDeleteBook(book.bookId)}
-                    >
-                      Delete this Book!
-                    </Button>
-                  </Card.Body>
-                </Card>
-              </Col>
-            );
-          })}
+          {userData.savedBooks?.map((book: any) => (
+            <Col md='4' key={book.bookId}>
+              <Card border='dark'>
+                {book.image ? (
+                  <Card.Img
+                    src={book.image}
+                    alt={`The cover for ${book.title}`}
+                    variant='top'
+                  />
+                ) : null}
+                <Card.Body>
+                  <Card.Title>{book.title}</Card.Title>
+                  <p className='small'>Authors: {book.authors.join(', ')}</p>
+                  <Card.Text>{book.description}</Card.Text>
+                  <Button
+                    className='btn-block btn-danger'
+                    onClick={() => handleDeleteBook(book.bookId)}
+                  >
+                    Delete this Book!
+                  </Button>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
         </Row>
       </Container>
     </>
