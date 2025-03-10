@@ -1,10 +1,14 @@
+// server/src/server.ts (partial fix for Apollo middleware)
 import express from 'express';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { ApolloServer } from 'apollo-server-express';
 import { typeDefs, resolvers } from './schemas/index.js';
 import db from './config/connection.js';
 import { authMiddleware } from './services/auth.js';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,22 +16,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../../dist')));
-  
-  app.get('*', (_, res) => {
-    res.sendFile(path.join(__dirname, '../../../dist/index.html'));
-  });
-} else {
-  app.use(express.static(path.join(__dirname, '../../client/dist')));
-  
-  app.get('*', (_, res) => {
-    res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
-  });
-}
+// Rest of your setup code...
 
 const startApolloServer = async () => {
   const server = new ApolloServer({
@@ -37,6 +26,7 @@ const startApolloServer = async () => {
   });
 
   await server.start();
+  // Fix for the Apollo middleware type issue
   server.applyMiddleware({ app: app as any });
 
   db.once('open', () => {
