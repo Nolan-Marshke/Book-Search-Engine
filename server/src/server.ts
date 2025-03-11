@@ -1,6 +1,6 @@
-// server/src/server.ts
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { ApolloServer } from 'apollo-server-express';
 import { typeDefs, resolvers } from './schemas/index.js';
@@ -28,16 +28,54 @@ app.get('/health', (_, res) => {
 
 // Static assets
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../../dist')));
+  // Try multiple possible paths for the client build
+  const possiblePaths = [
+    path.join(__dirname, '../../../client/dist'), // /opt/render/project/src/client/dist
+    path.join(__dirname, '../../client/dist'),    // /opt/render/project/server/client/dist 
+    path.join(__dirname, '../client/dist'),       // /opt/render/project/server/dist/client/dist
+    path.join(__dirname, '../../../dist'),        // /opt/render/project//dist
+    path.join(__dirname, '../../../../dist')      // /opt/render/project/dist
+  ];
   
-  app.get('*', (_, res) => {
-    res.sendFile(path.join(__dirname, '../../../dist/index.html'));
-  });
+  // Find the first path that exists
+  let clientBuildPath = null;
+  for (const testPath of possiblePaths) {
+    console.log(`Testing path: ${testPath}`);
+    if (fs.existsSync(testPath)) {
+      clientBuildPath = testPath;
+      console.log(`✅ Found client build at: ${clientBuildPath}`);
+      break;
+    }
+  }
+  
+  if (clientBuildPath) {
+    app.use(express.static(clientBuildPath));
+    app.get('*', (_, res) => {
+      res.sendFile(path.join(clientBuildPath, 'index.html'));
+    });
+  } else {
+    console.error('❌ Could not find client build directory');
+    // Fallback to a simple HTML page
+    app.get('*', (_, res) => {
+      res.send(`
+        <html>
+          <head><title>Google Books Search</title></head>
+          <body>
+            <h1>Google Books Search API is running</h1>
+            <p>The API is working but could not locate the client build files.</p>
+            <p>Please check the server logs for more information.</p>
+          </body>
+        </html>
+      `);
+    });
+  }
 } else {
-  app.use(express.static(path.join(__dirname, '../../client/dist')));
+  // Development mode
+  const clientBuildPath = path.join(__dirname, '../../client/dist');
+  app.use(express.static(clientBuildPath));
   
   app.get('*', (_, res) => {
-    res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
+    res.sendFile(path.join(clientBuildPath, 'index.html'));
   });
 }
 
